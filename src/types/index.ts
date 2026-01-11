@@ -40,6 +40,8 @@ export interface BreakpointConfig {
   id?: number;
   /** Whether this breakpoint is enabled */
   enabled?: boolean;
+  /** Resolved remote path (in container) - set after path mapping */
+  remotePath?: string;
 }
 
 /**
@@ -364,6 +366,8 @@ export interface SetBreakpointResponse {
     file: string;
     line: number;
     condition?: string;
+    /** The resolved remote path (in container) */
+    remotePath?: string;
   };
   message: string;
   hint?: string;

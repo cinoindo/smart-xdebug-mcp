@@ -429,6 +429,34 @@ export class DbgpConnection extends EventEmitter {
   }
 
   /**
+   * Continue execution until next breakpoint
+   */
+  async run(): Promise<void> {
+    await this.sendCommand('run');
+  }
+
+  /**
+   * Step into the next statement
+   */
+  async stepInto(): Promise<void> {
+    await this.sendCommand('step_into');
+  }
+
+  /**
+   * Step over the current statement
+   */
+  async stepOver(): Promise<void> {
+    await this.sendCommand('step_over');
+  }
+
+  /**
+   * Step out of the current function
+   */
+  async stepOut(): Promise<void> {
+    await this.sendCommand('step_out');
+  }
+
+  /**
    * Get a variable/property value
    */
   async getProperty(

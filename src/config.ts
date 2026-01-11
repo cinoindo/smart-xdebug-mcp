@@ -43,6 +43,16 @@ const ConfigSchema = z.object({
 
   /** Project root for path mapping */
   projectRoot: z.string().optional(),
+
+  /** Explicit path mappings (local -> remote) */
+  pathMappings: z
+    .array(
+      z.object({
+        local: z.string(),
+        remote: z.string(),
+      })
+    )
+    .optional(),
 });
 
 export type Config = z.infer<typeof ConfigSchema>;
@@ -84,6 +94,16 @@ export function loadConfig(overrides?: Partial<Config>): Config {
   }
   if (process.env.DEBUG) {
     envConfig.debug = true;
+  }
+  if (process.env.XDEBUG_MCP_PROJECT_ROOT) {
+    envConfig.projectRoot = process.env.XDEBUG_MCP_PROJECT_ROOT;
+  }
+  if (process.env.XDEBUG_MCP_PATH_MAPPINGS) {
+    try {
+      envConfig.pathMappings = JSON.parse(process.env.XDEBUG_MCP_PATH_MAPPINGS);
+    } catch {
+      console.error('Invalid XDEBUG_MCP_PATH_MAPPINGS JSON, ignoring');
+    }
   }
 
   // Merge: defaults < env < explicit overrides

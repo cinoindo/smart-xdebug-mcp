@@ -50,12 +50,27 @@ export class DebugSessionManager {
   private stepCount = 0;
   private isShuttingDown = false;
 
+  private mappingsLoaded = false;
+
   constructor() {
     this.pathMapper = new PathMapper();
     this.recorder = new SessionRecorder();
 
     // Handle process signals for cleanup
     this.setupSignalHandlers();
+
+    // Load path mappings eagerly (async, but will be ready before most operations)
+    this.ensureMappingsLoaded();
+  }
+
+  /**
+   * Ensure path mappings are loaded (idempotent)
+   */
+  private async ensureMappingsLoaded(): Promise<void> {
+    if (!this.mappingsLoaded) {
+      await this.pathMapper.loadMappings();
+      this.mappingsLoaded = true;
+    }
   }
 
   // ==========================================================================
@@ -70,19 +85,25 @@ export class DebugSessionManager {
    * @throws {SessionAlreadyActiveError} If a session is already running
    */
   async startSession(config: DebugSessionConfig): Promise<SessionState> {
-    // Check for existing session
-    if (this.session && !this.isSessionEnded()) {
+    // Check for existing ACTIVE session (connected or running)
+    // Allow reusing "pending" sessions (created by setBreakpoint)
+    const isPendingSession =
+      this.session?.status === 'initializing' && this.session?.id === 'pending';
+    if (this.session && !this.isSessionEnded() && !isPendingSession) {
       throw new SessionAlreadyActiveError();
     }
 
     const sessionId = randomUUID();
     logger.info('Starting session', { sessionId, command: config.command });
 
-    // Initialize fresh session state
+    // Preserve breakpoints from pending session if any
+    const existingBreakpoints = this.session?.breakpoints ?? new Map();
+
+    // Initialize session state (preserving breakpoints)
     this.session = {
       id: sessionId,
       status: 'initializing',
-      breakpoints: new Map(),
+      breakpoints: existingBreakpoints,
       startedAt: new Date(),
       lastActivityAt: new Date(),
     };
@@ -109,39 +130,42 @@ export class DebugSessionManager {
       await this.connection.listen();
       this.updateStatus('listening');
 
-      // Set pending breakpoints before trigger
-      await this.setAllBreakpoints();
-
-      // Configure stop-on behaviors
-      if (config.stopOnEntry) {
-        await this.connection.setFeature('show_hidden', '1');
-      }
-      if (config.stopOnException) {
-        await this.connection.breakOnException('*');
-      }
-
-      // Execute trigger command
+      // Execute trigger command (async - starts curl in background)
       await this.connection.executeTrigger(
         config.command,
         config.workingDirectory
       );
 
-      // Wait for connection
+      // Wait for XDebug to connect
       const timeout = config.timeout ?? globalConfig.connectionTimeout;
       await this.connection.waitForConnection(timeout);
-      this.updateStatus('running');
+      this.updateStatus('connected');
+
+      // Now that we're connected, set breakpoints
+      await this.setAllBreakpoints();
+
+      // Configure stop-on behaviors
+      if (config.stopOnException) {
+        await this.connection.breakOnException('*');
+      }
 
       // Start watchdog timer
       this.startWatchdog();
 
-      // Wait briefly for initial break (if stop_on_entry or immediate breakpoint)
+      // If stop_on_entry, step into first line; otherwise run until breakpoint
+      if (config.stopOnEntry) {
+        await this.connection.stepInto();
+      } else {
+        await this.connection.run();
+      }
+
+      // Wait for break event (breakpoint hit, step complete, or exception)
+      this.updateStatus('running');
       try {
-        await Promise.race([
-          this.connection.waitForBreak(2000),
-          new Promise((resolve) => setTimeout(resolve, 2000)),
-        ]);
+        await this.connection.waitForBreak(5000);
       } catch {
-        // No immediate break, that's fine
+        // No break within timeout - execution may have completed
+        logger.debug('No break event within timeout');
       }
 
       return this.session;
@@ -161,6 +185,9 @@ export class DebugSessionManager {
    * @returns The breakpoint config with ID if registered
    */
   async setBreakpoint(config: BreakpointConfig): Promise<BreakpointConfig> {
+    // Ensure path mappings are loaded before resolving paths
+    await this.ensureMappingsLoaded();
+
     // Create pending session for breakpoint storage if needed
     if (!this.session) {
       this.session = {
@@ -201,11 +228,13 @@ export class DebugSessionManager {
 
     logger.info('Breakpoint set', {
       file: config.file,
+      remotePath,
       line: config.line,
       condition: config.condition,
     });
 
-    return { ...config, id: storedConfig.id };
+    // Return both local file and resolved remote path
+    return { ...config, id: storedConfig.id, remotePath };
   }
 
   /**

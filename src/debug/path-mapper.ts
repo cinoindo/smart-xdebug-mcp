@@ -61,6 +61,17 @@ export class PathMapper {
       return;
     }
 
+    // Check for mappings from config (environment variable)
+    const configMappings = getConfig().pathMappings;
+    if (configMappings && configMappings.length > 0) {
+      this.mappings = configMappings.map((m) => ({
+        local: this.normalizePath(resolve(this.projectRoot, m.local)),
+        remote: this.normalizePath(m.remote),
+      }));
+      logger.info('Using path mappings from config', { count: this.mappings.length });
+      return;
+    }
+
     // Try .vscode/launch.json
     const vscodePath = join(this.projectRoot, '.vscode', 'launch.json');
     if (existsSync(vscodePath)) {
