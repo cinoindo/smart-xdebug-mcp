@@ -466,20 +466,31 @@ export class DebugSessionManager {
       reason: data.reason,
     });
 
-    const localFile = this.pathMapper.toLocal(data.filename);
+    let localFile = this.pathMapper.toLocal(data.filename);
+    let lineNo = data.lineno;
     logger.debug('Path mapping result', { rawFilename: data.filename, localFile });
 
     const location: DebugLocation = {
       file: localFile,
-      line: data.lineno,
+      line: lineNo,
     };
 
-    // Get stack for function context
+    // Get stack for function context AND actual file location
+    // XDebug sometimes sends empty filename in break events
     if (this.connection?.isConnected()) {
       try {
         const stack = await this.connection.getStackFrames();
         if (stack.length > 0 && stack[0]) {
           location.function = stack[0].where;
+
+          // Use stack frame location if break event had empty filename
+          if (!data.filename || data.filename.trim() === '') {
+            localFile = this.pathMapper.toLocal(stack[0].filename);
+            lineNo = stack[0].lineno;
+            location.file = localFile;
+            location.line = lineNo;
+            logger.debug('Using stack frame location', { file: localFile, line: lineNo });
+          }
         }
       } catch {
         // Non-critical
@@ -489,7 +500,7 @@ export class DebugSessionManager {
     // Read code snippet
     let codeSnippet: string | undefined;
     try {
-      codeSnippet = await this.readCodeSnippet(localFile, data.lineno);
+      codeSnippet = await this.readCodeSnippet(localFile, lineNo);
     } catch {
       // File might not be accessible
     }
