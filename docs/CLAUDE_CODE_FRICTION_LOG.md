@@ -199,26 +199,62 @@ This document tracks issues, confusion points, and friction encountered when Cla
 
 ---
 
+## Resolution Status (Updated 2026-01-11)
+
+### Issues Fixed by Code Changes
+
+| Issue | Fix | Commit |
+|-------|-----|--------|
+| #5 Path Mapping Config | Added `XDEBUG_MCP_PROJECT_ROOT` and `XDEBUG_MCP_PATH_MAPPINGS` env vars | `1eb2ae1` |
+| #7 Inconsistent State | Pending sessions now preserve breakpoints, reuse allowed | `1eb2ae1` |
+| #8 Path Not Loaded | `ensureMappingsLoaded()` called in setBreakpoint | `1eb2ae1` |
+| Path display "." | Handle empty filename from XDebug entry points | `34820b1` |
+| Path join bug | Handle leading slash in toLocal() | `3274f70` |
+| Stack frame fallback | Use stack_get for location when break event empty | `629458a` |
+| DBGp params wrong | Fix property_get -d/-c usage, use feature_set | `7cbea51` |
+| Variable inspection crash | Handle non-string values in parseValue | `f00d369` |
+
+### Issues Fixed by Tool Description Improvements
+
+| Issue | Improvement |
+|-------|-------------|
+| #1 Stale Session | Tool description now says to call `get_session_status` first |
+| #2 Path Uncertainty | Clear PATH FORMAT examples in `set_breakpoint` description |
+| #3 Workflow Unclear | WORKFLOW section added to `start_debug_session` |
+| #4 XDebug Trigger | XDEBUG TRIGGERING section with examples |
+| #6 Stuck Session | STUCK SESSION RECOVERY hint in `get_session_status` |
+
+### Remaining Issues
+
+| Issue | Status | Notes |
+|-------|--------|-------|
+| #9 Multi-Port | Open | Single port limitation - architectural change needed |
+| JSONPath filter empty | Open | `$.REQUEST_URI` filter returns empty (may be XDebug timing) |
+| `force` param | Not implemented | Could auto-stop existing sessions |
+| Auto-trigger | Not implemented | Could auto-append ?XDEBUG_SESSION=1 to URLs |
+
+---
+
 ## Improvement Categories
 
-### Tool Descriptions (High Priority)
-- [ ] Add workflow guidance to each tool
-- [ ] Clarify path mapping expectations
-- [ ] Document session lifecycle
-- [ ] Add XDebug trigger explanation
+### Tool Descriptions (High Priority) - ✅ DONE
+- [x] Add workflow guidance to each tool
+- [x] Clarify path mapping expectations
+- [x] Document session lifecycle
+- [x] Add XDebug trigger explanation
 
-### Error Messages (Medium Priority)
-- [ ] Include actionable recovery steps
+### Error Messages (Medium Priority) - Partial
+- [x] Include actionable recovery steps (in tool descriptions)
 - [ ] Show relevant context (current state, elapsed time)
-- [ ] Suggest next tool to call
+- [x] Suggest next tool to call
 
 ### New Features (Consider)
 - [ ] `force` parameter for start_debug_session
-- [ ] Path validation tool/endpoint
+- [x] Path validation (localFileExists in response)
 - [ ] Session timeout/auto-cleanup
 - [ ] Auto-trigger injection for curl commands
 
-### Documentation (Medium Priority)
-- [ ] Quick start workflow guide
-- [ ] Common framework path mappings
+### Documentation (Medium Priority) - ✅ DONE
+- [x] Quick start workflow guide (in tool descriptions)
+- [x] TOOL_IMPROVEMENT_ANALYSIS.md created
 - [ ] Troubleshooting guide for Claude Code users
