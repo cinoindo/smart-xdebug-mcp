@@ -56,7 +56,7 @@ export async function handleInspectVariable(
         value: filtered,
         truncated: false,
       };
-    } catch (err) {
+    } catch {
       // Invalid JSONPath - return structure with available keys
       const keys = extractKeys(jsonValue);
       return {

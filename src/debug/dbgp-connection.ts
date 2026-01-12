@@ -11,8 +11,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { createServer, Server, Socket } from 'net';
-import { spawn, ChildProcess } from 'child_process';
+import type { Server, Socket } from 'net';
+import { createServer } from 'net';
+import type { ChildProcess } from 'child_process';
+import { spawn } from 'child_process';
 import { EventEmitter } from 'events';
 import { XMLParser } from 'fast-xml-parser';
 import { getConfig } from '../config.js';
@@ -281,12 +283,14 @@ export class DbgpConnection extends EventEmitter {
       throw new Error('Invalid trigger command');
     }
 
+    // Security: Don't use shell: true to prevent command injection.
+    // Complex commands (pipes, redirects) should use a wrapper script.
     this.triggerProcess = spawn(cmd, args, {
       cwd: workingDirectory ?? process.cwd(),
       env,
       detached: true,
       stdio: ['ignore', 'pipe', 'pipe'],
-      shell: true, // Use shell for better command parsing
+      shell: false,
     });
 
     // Log output for debugging

@@ -31,7 +31,8 @@ import type {
   ExecutionAction,
   VariableInfo,
 } from '../types/index.js';
-import { DbgpConnection, BreakEventData } from './dbgp-connection.js';
+import type { BreakEventData } from './dbgp-connection.js';
+import { DbgpConnection } from './dbgp-connection.js';
 import { PathMapper } from './path-mapper.js';
 import { SessionRecorder } from './session-recorder.js';
 import { createLogger } from '../utils/logger.js';
@@ -60,7 +61,7 @@ export class DebugSessionManager {
     this.setupSignalHandlers();
 
     // Load path mappings eagerly (async, but will be ready before most operations)
-    this.ensureMappingsLoaded();
+    void this.ensureMappingsLoaded();
   }
 
   /**
@@ -340,8 +341,8 @@ export class DebugSessionManager {
     // Wait for break or completion
     try {
       await this.connection.waitForBreak();
-    } catch (error) {
-      // Session may have ended
+    } catch {
+      // Session may have ended - error expected when connection closes
       if (!this.connection.isConnected()) {
         this.updateStatus('stopped');
       }
